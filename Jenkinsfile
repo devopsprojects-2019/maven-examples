@@ -1,27 +1,27 @@
 node {
    
    stage('Code Checkout') { 
-     git credentialsId: 'githubID', url: 'https://github.com/itrainbatman/maven-examples.git'
+     git credentialsId: 'githubID', url: 'https://github.com/devopsprojects-2019/maven-examples.git'
      
     }
    stage('Build') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-1.8', maven: 'maven-3.6') {
       sh 'mvn clean compile'
       }
     }
    stage('Unit Test run') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-1.8', maven: 'maven-3.6') {
      sh 'mvn test'
       } 
     }
    
    withSonarQubeEnv(credentialsId: 'sonarqubeid') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-1.8', maven: 'maven-3.6') {
     sh 'mvn sonar:sonar' 
       }
     }
   stage("Quality Gate"){
-          timeout(time: 1, unit: 'HOURS') {
+          timeout(time: 10, unit: 'MINUTES') {
               def qg = waitForQualityGate()
               if (qg.status != 'OK') {
                   error "Pipeline aborted due to quality gate failure: ${qg.status}"
@@ -29,7 +29,7 @@ node {
           }
     }
    stage('Package to Jfrog') {
-    withMaven(jdk: 'JDK-1.8', maven: 'Maven-3.6.1') {
+    withMaven(jdk: 'jdk-1.8', maven: 'maven-3.6') {
      sh 'mvn package'
       }
     }
